@@ -36,7 +36,8 @@ public class Main extends Frame{
         List<Missile> missileList=new ArrayList<>();
         private Explode explode=new Explode(90,90,this);
         List<Explode> explodeList=new LinkedList<>();
-
+        Wall w1=new Wall(200,100,20,150,this);
+        Wall w2=new Wall(300,200,300,20,this);
         //绘图出tank
         @Override
         public void paint(Graphics g) {
@@ -50,6 +51,8 @@ public class Main extends Frame{
                //}
                 missile.draw(g);
                 missile.hitTank(tanks);
+                missile.hitWall(w1);
+                missile.hitWall(w2);
                 missile.hitTank(tanksList);
                 //missile.hitTank(enemtanks);
             }
@@ -58,10 +61,15 @@ public class Main extends Frame{
                 Explode explode = explodeList.get(i);
                 explode.draw(g);
             }
+            w1.draw(g);
+            w2.draw(g);
             tanks.draw(g);
             for (int i = 0; i <tanksList.size() ; i++) {
                 Tanks tanks = tanksList.get(i);
                 tanks.draw(g);
+                tanks.hitWall(w1);
+                tanks.hitWall(w2);
+                tanks.hitWithTank(tanksList);
             }
             //enemtanks.draw(g);
         }

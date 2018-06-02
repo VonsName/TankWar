@@ -15,6 +15,14 @@ public class Missile {
         return isLive;
     }
 
+    public Main getM() {
+        return m;
+    }
+
+    public void setM(Main m) {
+        this.m = m;
+    }
+
     public Missile(int x, int y, Tanks.Direction dir, Main m) {
         this(x, y, dir);
         this.m = m;
@@ -59,7 +67,7 @@ public class Missile {
         this.dir = dir;
     }
     public void draw(Graphics g){
-        if (!isLive){
+        if (!this.isLive()){
             m.missileList.remove(this);
             return;
         }
@@ -110,7 +118,7 @@ public class Missile {
     }
 
     //碰撞检测
-    private Rectangle getRect(){
+    public Rectangle getRect(){
         return new Rectangle(x,y,WIDTH,HIGH);
     }
     public boolean hitTank(Tanks t){
@@ -131,6 +139,14 @@ public class Missile {
                 //m.tanksList.remove(i);
                 return true;
             }
+        }
+        return false;
+    }
+    public boolean hitWall(Wall wall){
+        if (this.isLive&&this.getRect().intersects(wall.getRect())){
+            this.isLive=false;
+            m.missileList.remove(this);
+            return true;
         }
         return false;
     }

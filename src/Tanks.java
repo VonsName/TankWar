@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.List;
 import java.util.Random;
 
 public class Tanks {
@@ -8,10 +9,13 @@ public class Tanks {
     public static final int WIDTH=30;
     public static final int HIGH=30;
     public boolean good;
+    private int oldX,oldY;
     private boolean isLive=true;
     public Tanks(int x, int y) {
         this.x = x;
         this.y = y;
+        this.oldX=x;
+        this.oldY=y;
     }
     private Main m;
 
@@ -54,14 +58,21 @@ public class Tanks {
     }
 
     private void fire() {
+        if (!this.isLive()) return;
         int x=this.x+Tanks.WIDTH/2-Missile.WIDTH/2;
         int y=this.y+Tanks.HIGH/2-Missile.HIGH/2;
         Missile missile = new Missile(x,y,prDir,good,this.m);
-        if (this.isLive){
+        if (this.isLive()){
             m.missileList.add(missile);
         }
     }
-
+    public boolean hitWall(Wall wall){
+        if (this.isLive&&this.getRect().intersects(wall.getRect())){
+            this.stay();
+            return true;
+        }
+        return false;
+    }
     public boolean isGood() {
         return good;
     }
@@ -137,8 +148,14 @@ public class Tanks {
 
     public static Random random=new Random();
     private int step=random.nextInt(12)+3;
+    private void stay(){
+        x=oldX;
+        y=oldY;
+    }
     //根据方向移动位置
     private void move(){
+        oldX=x;
+        oldY=y;
         switch (dir){
             case L:
                 x-=XSPEED;
@@ -197,7 +214,25 @@ public class Tanks {
     public void setLive(boolean live) {
         isLive = live;
     }
-
+    private void fire(Direction dir){
+        if (!this.isLive()){
+            return;
+        }
+        int x=this.x+Tanks.WIDTH/2-Missile.WIDTH/2;
+        int y=this.y+Tanks.HIGH/2-Missile.HIGH/2;
+        Missile missile = new Missile(x,y,dir,good,this.m);
+        if (this.isLive){
+            m.missileList.add(missile);
+        }
+    }
+    public void superFire(){
+        Direction[] directions = Direction.values();
+        for (int i = 0; i <directions.length ; i++) {
+            if (directions[i]!=Direction.STOP){
+                fire(directions[i]);
+            }
+        }
+    }
     public void draw(Graphics g){
         if (!isLive){
             if (!good){
@@ -258,6 +293,9 @@ public class Tanks {
             case KeyEvent.VK_UP:
                 bu=true;
                 break;
+            case KeyEvent.VK_A:
+                superFire();
+                break;
         }
         direction();
     }
@@ -275,5 +313,22 @@ public class Tanks {
     }
     public Rectangle getRect(){
         return new Rectangle(x,y,WIDTH,HIGH);
+    }
+    public boolean hitWithTank(Tanks tanks){
+        if (this!=tanks){
+            if (this.isLive&&tanks.isLive&&this.getRect().intersects(tanks.getRect())){
+                this.stay();
+                tanks.stay();
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean hitWithTank(List<Tanks> tanks){
+        boolean flag=false;
+        for (int i = 0; i <tanks.size() ; i++) {
+            flag=hitWithTank(tanks.get(i));
+        }
+        return flag;
     }
 }
