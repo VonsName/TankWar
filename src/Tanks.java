@@ -9,8 +9,10 @@ public class Tanks {
     public static final int WIDTH=30;
     public static final int HIGH=30;
     public boolean good;
+    private int life=100;
     private int oldX,oldY;
     private boolean isLive=true;
+    private BloodBar bloodBar=new BloodBar();
     public Tanks(int x, int y) {
         this.x = x;
         this.y = y;
@@ -22,6 +24,14 @@ public class Tanks {
     public Tanks(Main m, int x, int y) {
         this(x,y);
         this.m = m;
+    }
+
+    public int getLife() {
+        return life;
+    }
+
+    public void setLife(int life) {
+        this.life = life;
     }
 
     public Tanks(boolean good, Main m, int x, int y) {
@@ -40,6 +50,12 @@ public class Tanks {
         switch (keyCode){
             case KeyEvent.VK_CONTROL://ctrl事件
                 fire();
+                break;
+            case KeyEvent.VK_F2:
+                if (!this.isLive()){
+                    this.setLive(true);
+                    this.setLife(100);
+                }
                 break;
             case KeyEvent.VK_RIGHT:
                 br=false;
@@ -239,7 +255,6 @@ public class Tanks {
                 m.tanksList.remove(this);
             }
             return;
-
         }
         Color color = g.getColor();
         if (good){
@@ -250,6 +265,9 @@ public class Tanks {
 
         g.fillOval(x,y,WIDTH,HIGH);
         g.setColor(color);
+        if (this.isGood()){
+            bloodBar.draw(g);
+        }
         switch (prDir){
             case L:
                 g.drawLine(x+Tanks.WIDTH/2,y+Tanks.HIGH/2,x,y+Tanks.HIGH/2);
@@ -315,6 +333,16 @@ public class Tanks {
         return new Rectangle(x,y,WIDTH,HIGH);
     }
     public boolean hitWithTank(Tanks tanks){
+        //撞击敌军坦克死亡
+        if (tanks.isGood()){
+            if (this.getRect().intersects(tanks.getRect())){
+                tanks.setLife(0);
+                tanks.setLive(false);
+                Explode explode=new Explode(x,y,m);
+                m.explodeList.add(explode);
+                return true;
+            }
+        }
         if (this!=tanks){
             if (this.isLive&&tanks.isLive&&this.getRect().intersects(tanks.getRect())){
                 this.stay();
@@ -330,5 +358,21 @@ public class Tanks {
             flag=hitWithTank(tanks.get(i));
         }
         return flag;
+    }
+    private class BloodBar{
+        public void draw(Graphics g){
+            Color color = g.getColor();
+            g.setColor(Color.RED);
+            g.drawRect(x,y,WIDTH,5);
+            int w=WIDTH*life/100;
+            g.fillRect(x,y,w,5);
+            g.setColor(color);
+        }
+    }
+    public void eat(Blood blood){
+        if (this.isLive()&&blood.isLive()&&this.getRect().intersects(blood.getRect())){
+            this.setLife(100);
+            blood.setLive(false);
+        }
     }
 }

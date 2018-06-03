@@ -28,7 +28,7 @@ public class Main extends Frame{
 
         private int x=70; //初始位置
         private int y=70; //初始位置
-        private Tanks tanks=new Tanks(true,this,Tanks.Direction.STOP,x,y);
+        private Tanks myTank=new Tanks(true,this,Tanks.Direction.STOP,x,y);
 
         //private Tanks enemtanks=new Tanks(false,this,200,200);
         public List<Tanks> tanksList=new LinkedList<>();
@@ -38,19 +38,26 @@ public class Main extends Frame{
         List<Explode> explodeList=new LinkedList<>();
         Wall w1=new Wall(200,100,20,150,this);
         Wall w2=new Wall(300,200,300,20,this);
+        Blood blood=new Blood();
         //绘图出tank
         @Override
         public void paint(Graphics g) {
             g.drawString("missileCount:"+missileList.size(),5,y);
             g.drawString("explodeCount:"+explodeList.size(),5,y+10);
             g.drawString("tankCount:"+tanksList.size(),5,y+20);
+            g.drawString("tankLife:"+myTank.getLife(),5,y+30);
+            if (tanksList.isEmpty()){
+                for (int i = 0; i < 10; i++) {
+                    tanksList.add(new Tanks(false,this,Tanks.Direction.D,x+x*(i+1),y));
+                }
+            }
             for (int i=0;i<missileList.size();i++){
                 Missile missile = missileList.get(i);
                 //if (!missile.isLive()){
                   //  missileList.remove(missile);
                //}
                 missile.draw(g);
-                missile.hitTank(tanks);
+                missile.hitTank(myTank);
                 missile.hitWall(w1);
                 missile.hitWall(w2);
                 missile.hitTank(tanksList);
@@ -63,14 +70,18 @@ public class Main extends Frame{
             }
             w1.draw(g);
             w2.draw(g);
-            tanks.draw(g);
+            myTank.draw(g);
+            myTank.eat(blood);
+            blood.draw(g);
             for (int i = 0; i <tanksList.size() ; i++) {
                 Tanks tanks = tanksList.get(i);
                 tanks.draw(g);
                 tanks.hitWall(w1);
                 tanks.hitWall(w2);
                 tanks.hitWithTank(tanksList);
+                tanks.hitWithTank(myTank);
             }
+
             //enemtanks.draw(g);
         }
 
@@ -112,12 +123,12 @@ public class Main extends Frame{
         private class KeyMonitor extends KeyAdapter{
             @Override
             public void keyPressed(KeyEvent e) {
-                tanks.move(e);
+                myTank.move(e);
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                tanks.keyReleased(e);
+                myTank.keyReleased(e);
             }
         }
 
