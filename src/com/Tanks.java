@@ -1,9 +1,64 @@
+package com;
+
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class Tanks {
+    private static Image[] tankImages=null;
+    private int id;
+    private static Toolkit toolkit=Toolkit.getDefaultToolkit();
+    private static Map<String,Image> imageMap=new LinkedHashMap<>(12);
+    //加载敌人坦克图片
+    static {
+        tankImages=new Image[]{
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/enemy1D.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/enemy1L.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/enemy1R.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/enemy1U.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/enemy2D.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/enemy2L.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/enemy2R.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/enemy2U.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/enemy3D.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/enemy3L.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/enemy3R.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/enemy3U.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/p1tankD.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/p1tankL.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/p1tankR.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/p1tankU.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/p2tankD.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/p2tankL.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/p2tankR.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/p2tankU.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/tugai.net.20101117235923.gif"))
+        };
+        imageMap.put("1D",tankImages[0]);
+        imageMap.put("1L",tankImages[1]);
+        imageMap.put("1R",tankImages[2]);
+        imageMap.put("1U",tankImages[3]);
+        imageMap.put("2D",tankImages[4]);
+        imageMap.put("2L",tankImages[5]);
+        imageMap.put("2R",tankImages[6]);
+        imageMap.put("2U",tankImages[7]);
+        imageMap.put("3D",tankImages[8]);
+        imageMap.put("3L",tankImages[9]);
+        imageMap.put("3R",tankImages[10]);
+        imageMap.put("3U",tankImages[11]);
+        imageMap.put("P1D",tankImages[12]);
+        imageMap.put("P1L",tankImages[13]);
+        imageMap.put("P1R",tankImages[14]);
+        imageMap.put("P1U",tankImages[15]);
+        imageMap.put("P2D",tankImages[16]);
+        imageMap.put("P2L",tankImages[17]);
+        imageMap.put("P2R",tankImages[18]);
+        imageMap.put("P2U",tankImages[19]);
+        imageMap.put("MY",tankImages[20]);
+    }
     public static final int XSPEED=10;
     public static final int YSPEED=10;
     public static final int WIDTH=30;
@@ -13,6 +68,18 @@ public class Tanks {
     private int oldX,oldY;
     private boolean isLive=true;
     private BloodBar bloodBar=new BloodBar();
+
+    //load爆炸图片
+
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public Tanks(int x, int y) {
         this.x = x;
         this.y = y;
@@ -44,6 +111,14 @@ public class Tanks {
         this.dir = dir;
     }
 
+    public Direction getDir() {
+        return dir;
+    }
+
+    public void setDir(Direction dir) {
+        this.dir = dir;
+    }
+
     //键盘松开事件
     public void keyReleased(KeyEvent e) {
         int keyCode = e.getKeyCode();
@@ -69,6 +144,7 @@ public class Tanks {
             case KeyEvent.VK_UP:
                 bu=false;
                 break;
+                default:
         }
         direction();
     }
@@ -203,14 +279,15 @@ public class Tanks {
                 break;
             case STOP:
                 break;
+                default:
         }
         if (this.dir!=Direction.STOP){
             this.prDir=this.dir;
         }
-        if (x<0) x=0;
-        if (y<30) y=30;
-        if (x+Tanks.WIDTH>Main.GAME_WIDTH)x=Main.GAME_WIDTH-Tanks.WIDTH;
-        if (y+Tanks.HIGH>Main.GAME_HIGH)y=Main.GAME_HIGH-Tanks.HIGH;
+        if (x<0) {x=0;}
+        if (y<30) {y=30;}
+        if (x+Tanks.WIDTH>Main.GAME_WIDTH){x=Main.GAME_WIDTH-Tanks.WIDTH;}
+        if (y+Tanks.HIGH>Main.GAME_HIGH){y=Main.GAME_HIGH-Tanks.HIGH;}
         if (!good){
             Direction[] directions = Direction.values();
             if (step==0){
@@ -234,8 +311,9 @@ public class Tanks {
         if (!this.isLive()){
             return;
         }
-        int x=this.x+Tanks.WIDTH/2-Missile.WIDTH/2;
-        int y=this.y+Tanks.HIGH/2-Missile.HIGH/2;
+
+        int x=this.x+tankImages[16].getWidth(null)/2-Missile.WIDTH/2;
+        int y=this.y+tankImages[16].getHeight(null)/2-Missile.HIGH/2;
         Missile missile = new Missile(x,y,dir,good,this.m);
         if (this.isLive){
             m.missileList.add(missile);
@@ -256,42 +334,83 @@ public class Tanks {
             }
             return;
         }
-        Color color = g.getColor();
+        /*Color color = g.getColor();
         if (good){
             g.setColor(Color.RED);
         }else {
             g.setColor(Color.BLUE);
-        }
-
-        g.fillOval(x,y,WIDTH,HIGH);
-        g.setColor(color);
+        }*/
+        g.drawString("id:"+id,x,y);
+        //g.fillOval(x,y,WIDTH,HIGH);
+        //g.setColor(color);
         if (this.isGood()){
             bloodBar.draw(g);
         }
+
         switch (prDir){
             case L:
-                g.drawLine(x+Tanks.WIDTH/2,y+Tanks.HIGH/2,x,y+Tanks.HIGH/2);
+                //g.drawLine(x+Tanks.WIDTH/2,y+Tanks.HIGH/2,x,y+Tanks.HIGH/2);
+                if (this.isGood()){
+                    g.drawImage(imageMap.get("MY"),x,y,null);
+                }else {
+                    g.drawImage(imageMap.get("P2L"),x,y,null);
+                }
                 break;
             case LU:
-                g.drawLine(x+Tanks.WIDTH/2,y+Tanks.HIGH/2,x,y);
+                //g.drawLine(x+Tanks.WIDTH/2,y+Tanks.HIGH/2,x,y);
+                if (this.isGood()){
+                    g.drawImage(imageMap.get("MY"),x,y,null);
+                }else {
+                    g.drawImage(imageMap.get("P2L"),x,y,null);
+                }
                 break;
             case LD:
-                g.drawLine(x+Tanks.WIDTH/2,y+Tanks.HIGH/2,x,y+Tanks.HIGH);
+                //g.drawLine(x+Tanks.WIDTH/2,y+Tanks.HIGH/2,x,y+Tanks.HIGH);
+                if (this.isGood()){
+                    g.drawImage(imageMap.get("MY"),x,y,null);
+                }else {
+                    g.drawImage(imageMap.get("P2D"),x,y,null);
+                }
                 break;
             case R:
-                g.drawLine(x+Tanks.WIDTH/2,y+Tanks.HIGH/2,x+Tanks.WIDTH,y+Tanks.HIGH/2);
+                //g.drawLine(x+Tanks.WIDTH/2,y+Tanks.HIGH/2,x+Tanks.WIDTH,y+Tanks.HIGH/2);
+                if (this.isGood()){
+                    g.drawImage(imageMap.get("MY"),x,y,null);
+                }else {
+                    g.drawImage(imageMap.get("P2R"),x,y,null);
+                }
                 break;
             case RU:
-                g.drawLine(x+Tanks.WIDTH/2,y+Tanks.HIGH/2,x+Tanks.WIDTH,y);
+                //g.drawLine(x+Tanks.WIDTH/2,y+Tanks.HIGH/2,x+Tanks.WIDTH,y);
+                if (this.isGood()){
+                    g.drawImage(imageMap.get("MY"),x,y,null);
+                }else {
+                    g.drawImage(imageMap.get("P2R"),x,y,null);
+                }
                 break;
             case RD:
-                g.drawLine(x+Tanks.WIDTH/2,y+Tanks.HIGH/2,x+Tanks.WIDTH,y+Tanks.HIGH);
+               // g.drawLine(x+Tanks.WIDTH/2,y+Tanks.HIGH/2,x+Tanks.WIDTH,y+Tanks.HIGH);
+                if (this.isGood()){
+                    g.drawImage(imageMap.get("MY"),x,y,null);
+                }else {
+                    g.drawImage(imageMap.get("P2D"),x,y,null);
+                }
                 break;
             case U:
-                g.drawLine(x+Tanks.WIDTH/2,y+Tanks.HIGH/2,x+Tanks.WIDTH/2,y);
+                //g.drawLine(x+Tanks.WIDTH/2,y+Tanks.HIGH/2,x+Tanks.WIDTH/2,y);
+                if (this.isGood()){
+                    g.drawImage(imageMap.get("MY"),x,y,null);
+                }else {
+                    g.drawImage(imageMap.get("P2U"),x,y,null);
+                }
                 break;
             case D:
-                g.drawLine(x+Tanks.WIDTH/2,y+Tanks.HIGH/2,x+Tanks.WIDTH/2,y+Tanks.HIGH);
+                //g.drawLine(x+Tanks.WIDTH/2,y+Tanks.HIGH/2,x+Tanks.WIDTH/2,y+Tanks.HIGH);
+                if (this.isGood()){
+                    g.drawImage(imageMap.get("MY"),x,y,null);
+                }else {
+                    g.drawImage(imageMap.get("P2D"),x,y,null);
+                }
                 break;
         }
         move();
@@ -319,6 +438,7 @@ public class Tanks {
     }
     //设置tank的方向
     public void direction(){
+        Direction direction=this.dir;
         if (bl&&!br&&!bd&&!bu) dir=Direction.L;
         else if (!bl&&br&&!bd&&!bu) dir=Direction.R;
         else if (!bl&&!br&&!bd&&bu) dir=Direction.U;
@@ -328,14 +448,19 @@ public class Tanks {
         else if (!bl&&br&&!bd&&bu) dir=Direction.RU;
         else if (!bl&&br&&bd&&!bu) dir=Direction.RD;
         else if (!bl&&!br&&!bd&&!bu) dir=Direction.STOP;
+        if (this.dir!=direction){
+            TankMoveMsg tankMoveMsg = new TankMoveMsg(dir,x,y,id);
+            m.netClient.send(tankMoveMsg);
+        }
+
     }
     public Rectangle getRect(){
-        return new Rectangle(x,y,WIDTH,HIGH);
+        return new Rectangle(x,y,tankImages[16].getWidth(null),tankImages[16].getHeight(null));
     }
     public boolean hitWithTank(Tanks tanks){
         //撞击敌军坦克死亡
         if (tanks.isGood()){
-            if (this.getRect().intersects(tanks.getRect())){
+            if (!this.isGood()&&this.getRect().intersects(tanks.getRect())){
                 tanks.setLife(0);
                 tanks.setLive(false);
                 Explode explode=new Explode(x,y,m);

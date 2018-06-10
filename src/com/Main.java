@@ -1,8 +1,7 @@
+package com;
+
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,6 +9,7 @@ import java.util.List;
 public class Main extends Frame{
     public static final int GAME_WIDTH=800;
     public static final int GAME_HIGH=600;
+    NetClient netClient;
         private Image image=null;
         //解决双缓冲
         @Override
@@ -19,7 +19,7 @@ public class Main extends Frame{
             }
             Graphics graphics = image.getGraphics();
             Color color = graphics.getColor();
-            graphics.setColor(Color.green);
+            graphics.setColor(Color.GREEN);
             graphics.fillRect(0,0,800,600);
             graphics.setColor(color);
             paint(graphics);
@@ -28,9 +28,9 @@ public class Main extends Frame{
 
         private int x=70; //初始位置
         private int y=70; //初始位置
-        private Tanks myTank=new Tanks(true,this,Tanks.Direction.STOP,x,y);
+        public Tanks myTank=new Tanks(true,this,Tanks.Direction.STOP,x,y);
 
-        //private Tanks enemtanks=new Tanks(false,this,200,200);
+        //private com.Tanks enemtanks=new com.Tanks(false,this,200,200);
         public List<Tanks> tanksList=new LinkedList<>();
         public Missile missile=null;
         List<Missile> missileList=new ArrayList<>();
@@ -105,6 +105,8 @@ public class Main extends Frame{
             //添加键盘监听器
             this.addKeyListener(new KeyMonitor());
             new Thread(new PaintThread()).start();
+            netClient= new NetClient(this);
+            //netClient.connect("127.0.0.1",TankServer.TCP_PORT);
         }
         private class PaintThread implements Runnable{
 
@@ -120,10 +122,16 @@ public class Main extends Frame{
                 }
             }
         }
+        Condialog condialog=new Condialog();
         private class KeyMonitor extends KeyAdapter{
             @Override
             public void keyPressed(KeyEvent e) {
-                myTank.move(e);
+                int keyCode = e.getKeyCode();
+                if (keyCode==KeyEvent.VK_C){
+                    condialog.setVisible(true);
+                }else {
+                    myTank.move(e);
+                }
             }
 
             @Override
@@ -132,8 +140,46 @@ public class Main extends Frame{
             }
         }
 
+        private class Condialog extends Dialog{
+            Button bt = new Button("onclick");
+           TextField ips= new TextField("127.0.0.1",12);
+           TextField tcp= new TextField(TankServer.TCP_PORT+"",5);
+            TextField udp=new TextField("2223",5);
+            public Condialog() {
+                super(Main.this,true);
+
+                this.setLayout(new FlowLayout());
+                this.add(new Label("ip:"));
+                this.add(ips);
+                this.add(new Label("port:"));
+                this.add(tcp);
+                this.add(new Label("myUDP:"));
+                this.add(bt);
+                this.add(udp);
+                this.setLocation(400,300);
+                this.pack();
+                this.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                        setVisible(false);
+                    }
+                });
+                bt.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        String ip=ips.getText().trim();
+                        int port=Integer.parseInt(tcp.getText().trim());
+                        int udpport=Integer.parseInt(udp.getText().trim());
+                        netClient.setUDP_PORT(udpport);
+                        netClient.connect(ip,port);
+                    }
+                });
+            }
+        }
+
     public static void main(String[] args) {
         Main tank = new Main();
         tank.lanchFrame();
+
     }
 }

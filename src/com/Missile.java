@@ -1,3 +1,5 @@
+package com;
+
 import java.awt.*;
 import java.util.List;
 
@@ -32,7 +34,14 @@ public class Missile {
         this(x, y, dir,m);
         this.good = good;
     }
-
+    private static Image[] tankImages=null;
+    private static Toolkit toolkit=Toolkit.getDefaultToolkit();
+    static {
+        tankImages = new Image[]{
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/enemymissile.gif")),
+                toolkit.getImage(Explode.class.getClassLoader().getResource("images/tankmissile.gif")),
+        };
+    }
     public void setLive(boolean live) {
         isLive = live;
     }
@@ -71,10 +80,19 @@ public class Missile {
             m.missileList.remove(this);
             return;
         }
-        Color color = g.getColor();
-        g.setColor(Color.BLACK);
+      /*  Color color = g.getColor();
+        if (good){
+            g.setColor(Color.RED);
+        }else {
+            g.setColor(Color.BLACK);
+        }
         g.fillOval(x,y,WIDTH,HIGH);
-        g.setColor(color);
+        g.setColor(color);*/
+      if (good){
+          g.drawImage(tankImages[1],x,y,null);
+      }else {
+          g.drawImage(tankImages[0],x,y,null);
+      }
         move();
     }
 

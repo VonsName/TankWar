@@ -1,3 +1,5 @@
+package com;
+
 import java.awt.*;
 
 public class Blood {
